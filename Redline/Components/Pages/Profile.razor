@@ -1,0 +1,193 @@
+﻿@page "/profile"
+@rendermode InteractiveServer
+@implements IDisposable
+@inject Redline.Services.MessageService MessageService
+@inject NavigationManager NavManager
+@inject AuthenticationStateProvider AuthStateProvider
+@using System.Security.Claims
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Text.Json
+
+@if (profile != null)
+{
+	<div class="profile-page">
+		<div class="profile-header">
+			<img class="profile-picture" src="@profile.ProfilePictureUrl" alt="Profile Picture" />
+			<div class="profile-details">
+				<h2>@profile.DisplayName</h2>
+				<p><b>Age:</b> @profile.Age</p>
+				<p><b>Location:</b> @profile.Location</p>
+				<p><b>Current Car:</b> @profile.CurrentCar</p>
+				<p><b>Favorite Car:</b> @profile.FavoriteCar</p>
+				@if (isOwner)
+				{
+					<button class="edit-btn" @onclick="EditProfile">Edit Profile</button>
+				}
+			</div>
+		</div>
+
+		<div class="message-section">
+			<textarea class="message-input" @bind="newMessageContent" placeholder="Write a message..."></textarea>
+			<button class="post-btn" @onclick="PostMessage">Post</button>
+
+			<div class="messages-container">
+				@foreach (var message in messages)
+				{
+					<div class="message-card">
+						<b>
+							@if (message.Sender != null)
+							{
+								<a href="@($"/profile?email={Uri.EscapeDataString(message.Sender.Email)}")">
+									@message.Sender.DisplayName
+								</a>
+							}
+							else
+							{
+								@:Unknown
+							}
+						</b>
+
+						@if (IsImageUrl(message.Content))
+						{
+							<img src="@message.Content" alt="User posted image" class="message-image" />
+						}
+						else
+						{
+							<p class="message-text">@message.Content</p>
+						}
+
+						@if (isOwner || message.SenderId == currentUserProfileId)
+						{
+							<button class="delete-btn" @onclick="() => DeleteMessage(message.Id)">Delete</button>
+						}
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+}
+else
+{
+	<h3>User not found.</h3>
+}
+
+@code {
+	private RedlineLib.Entites.User profile;
+	private bool isOwner = false;
+	private string newMessageContent;
+	private List<RedlineLib.Entites.Message> messages = new();
+	private Guid currentUserProfileId;
+
+	protected override async Task OnInitializedAsync()
+	{
+		NavManager.LocationChanged += OnLocationChanged;
+		await LoadProfileAsync();
+	}
+
+	private async void OnLocationChanged(object sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+	{
+		await LoadProfileAsync();
+		StateHasChanged(); // Refresh the UI
+	}
+
+	private async Task LoadProfileAsync()
+	{
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		if (user.Identity?.IsAuthenticated != true)
+		{
+			profile = null;
+			return;
+		}
+
+		var appUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+		if (string.IsNullOrEmpty(appUserId))
+		{
+			profile = null;
+			return;
+		}
+
+		var me = await MessageService.GetUserByApplicationUserIdAsync(appUserId);
+		if (me == null)
+		{
+			profile = null;
+			return;
+		}
+
+		currentUserProfileId = me.Id;
+
+		var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+		if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("email", out var email))
+		{
+			try
+			{
+				profile = await MessageService.GetUserByEmailAsync(email);
+			}
+			catch (JsonException)
+			{
+				// Treat invalid response as "user not found"
+				profile = null;
+			}
+
+			if (profile == null)
+			{
+				// Redirect to Not Found page
+				NavManager.NavigateTo("/notfound", true);
+				return;
+			}
+		}
+		else
+		{
+			profile = me;
+		}
+
+
+		isOwner = profile.Id == me.Id;
+		messages = await MessageService.GetMessagesForUserAsync(profile.Id);
+	}
+
+
+	public void Dispose()
+	{
+		NavManager.LocationChanged -= OnLocationChanged;
+	}
+
+	private bool IsImageUrl(string url)
+	{
+		if (string.IsNullOrWhiteSpace(url))
+			return false;
+
+		url = url.Trim();
+
+		// Basic check for common image extensions
+		string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+		return imageExtensions.Any(ext => url.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
+			   && (url.StartsWith("http://") || url.StartsWith("https://"));
+	}
+
+
+	private void EditProfile() => NavManager.NavigateTo("/Account/Manage/MyPage");
+
+	private async Task PostMessage()
+	{
+		if (profile != null && !string.IsNullOrWhiteSpace(newMessageContent))
+		{
+			var success = await MessageService.PostMessageAsync(currentUserProfileId, profile.Id, newMessageContent);
+			if (success)
+			{
+				messages = await MessageService.GetMessagesForUserAsync(profile.Id);
+				newMessageContent = string.Empty;
+			}
+		}
+	}
+
+	private async Task DeleteMessage(int messageId)
+	{
+		var success = await MessageService.DeleteMessageAsync(messageId);
+		if (success && profile != null)
+		{
+			messages = await MessageService.GetMessagesForUserAsync(profile.Id);
+		}
+	}
+}

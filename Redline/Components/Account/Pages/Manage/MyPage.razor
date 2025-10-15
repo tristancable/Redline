@@ -1,0 +1,103 @@
+﻿@page "/Account/Manage/MyPage"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Identity
+@using Redline.Data
+@using Redline.Services
+@using RedlineLib.Entites
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject MessageService MessageService
+@inject NavigationManager NavManager
+
+<div class="profile-page">
+	<h2>My Profile</h2>
+
+	<div class="profile-header">
+		<img class="profile-picture" src="@ProfilePictureUrl" alt="Profile Picture" />
+		<div class="profile-details" style="flex:1;">
+			<div class="form-group">
+				<label class="form-label">Display Name</label>
+				<input class="form-control" @bind="DisplayName" />
+			</div>
+
+			<div class="form-group">
+				<label class="form-label">Profile Picture URL</label>
+				<input class="form-control" @bind="ProfilePictureUrl" />
+			</div>
+
+			<div class="form-group">
+				<label class="form-label">Age</label>
+				<input class="form-control" type="number" @bind="Age" />
+			</div>
+
+			<div class="form-group">
+				<label class="form-label">Location</label>
+				<input class="form-control" @bind="Location" />
+			</div>
+
+			<div class="form-group">
+				<label class="form-label">Current Car</label>
+				<input class="form-control" @bind="CurrentCar" />
+			</div>
+
+			<div class="form-group">
+				<label class="form-label">Favorite Car</label>
+				<input class="form-control" @bind="FavoriteCar" />
+			</div>
+
+			<button class="btn btn-primary mt-3" @onclick="SaveProfile">Save</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	private ApplicationUser identityUser;
+	private User profileUser;
+
+	public string DisplayName { get; set; }
+	public string ProfilePictureUrl { get; set; }
+	public int Age { get; set; }
+	public string Location { get; set; }
+	public string CurrentCar { get; set; }
+	public string FavoriteCar { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+		var userPrincipal = authState.User;
+
+		identityUser = await UserManager.GetUserAsync(userPrincipal);
+		if (identityUser == null) return;
+
+		profileUser = await MessageService.GetUserByApplicationUserIdAsync(identityUser.Id);
+
+		if (profileUser != null)
+		{
+			DisplayName = profileUser.DisplayName;
+			ProfilePictureUrl = profileUser.ProfilePictureUrl;
+			Age = profileUser.Age ?? 0;
+			Location = profileUser.Location;
+			CurrentCar = profileUser.CurrentCar;
+			FavoriteCar = profileUser.FavoriteCar;
+		}
+	}
+
+	private async Task SaveProfile()
+	{
+		if (profileUser != null)
+		{
+			profileUser.DisplayName = DisplayName;
+			profileUser.ProfilePictureUrl = ProfilePictureUrl;
+			profileUser.Age = Age;
+			profileUser.Location = Location;
+			profileUser.CurrentCar = CurrentCar;
+			profileUser.FavoriteCar = FavoriteCar;
+
+			var success = await MessageService.UpdateUserAsync(profileUser);
+
+			if (success)
+				NavManager.NavigateTo($"/profile");
+		}
+	}
+}

@@ -1,0 +1,28 @@
+﻿IF OBJECT_ID('dbo.[User]', 'U') IS NOT NULL
+    DROP TABLE dbo.[User];
+
+IF OBJECT_ID('dbo.[Message]', 'U') IS NOT NULL
+    DROP TABLE dbo.[Message];
+
+CREATE TABLE [User] (
+    Id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,
+    ApplicationUserId NVARCHAR(450) NOT NULL,
+    Email NVARCHAR(200) NOT NULL,
+    DisplayName NVARCHAR(100) NOT NULL,
+    ProfilePictureUrl NVARCHAR(500),
+    Age INT,
+    Location NVARCHAR(200),
+    CurrentCar NVARCHAR(100),
+    FavoriteCar NVARCHAR(100)
+);
+
+CREATE TABLE [Message] (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    SenderId UNIQUEIDENTIFIER NOT NULL,
+    ReceiverId UNIQUEIDENTIFIER NOT NULL,
+    Content NVARCHAR(1000) NOT NULL,
+    Timestamp DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+
+    CONSTRAINT FK_Message_Sender FOREIGN KEY (SenderId) REFERENCES [User](Id) ON DELETE NO ACTION,
+    CONSTRAINT FK_Message_Receiver FOREIGN KEY (ReceiverId) REFERENCES [User](Id) ON DELETE NO ACTION
+);

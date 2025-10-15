@@ -1,0 +1,76 @@
+﻿@implements IDisposable
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+
+<nav>
+	<div class="nav-item">
+		<NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Home</NavLink>
+	</div>
+
+	<div class="nav-item">
+		<NavLink class="nav-link" href="/about">About</NavLink>
+	</div>
+
+	<AuthorizeView>
+		<Authorized>
+			<div class="nav-item">
+				<NavLink class="nav-link" href="profile">My Profile</NavLink>
+			</div>
+			<div class="nav-item">
+				<NavLink class="nav-link" href="user-search">Search Users</NavLink>
+			</div>
+
+			<div class="nav-item">
+				<form class="d-flex" role="search" method="get" action="/profile">
+					<input class="form-control"
+						   type="search"
+						   name="email"
+						   placeholder="Search users..."
+						   aria-label="Search" />
+				</form>
+			</div>
+
+			<div class="nav-item">
+				<NavLink class="nav-link" href="Account/Manage">@context.User.Identity?.Name</NavLink>
+			</div>
+
+			<div class="nav-item">
+				<form action="Account/Logout" method="post" class="logout-form">
+					<AntiforgeryToken />
+					<input type="hidden" name="ReturnUrl" value="@currentUrl" />
+					<button type="submit" class="nav-link">Logout</button>
+				</form>
+			</div>
+		</Authorized>
+
+		<NotAuthorized>
+			<div class="nav-item">
+				<NavLink class="nav-link register" href="account/register">Register</NavLink>
+			</div>
+			<div class="nav-item">
+				<NavLink class="nav-link" href="account/login">Login</NavLink>
+			</div>
+		</NotAuthorized>
+	</AuthorizeView>
+</nav>
+
+@code {
+	private string? currentUrl;
+
+	protected override void OnInitialized()
+	{
+		currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+		NavigationManager.LocationChanged += OnLocationChanged;
+	}
+
+	private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+	{
+		currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		NavigationManager.LocationChanged -= OnLocationChanged;
+	}
+}

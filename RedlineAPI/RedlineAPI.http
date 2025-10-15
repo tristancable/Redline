@@ -1,0 +1,6 @@
+@RedlineAPI_HostAddress = http://localhost:5215
+
+GET {{RedlineAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

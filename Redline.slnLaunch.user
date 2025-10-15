@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "Redline\\Redline.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "RedlineAPI\\RedlineAPI.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

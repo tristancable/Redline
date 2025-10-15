@@ -1,0 +1,62 @@
+﻿@page "/user-search"
+@rendermode InteractiveServer
+@using Redline.Services
+@using RedlineLib.Entites
+@inject MessageService MessageService
+@inject NavigationManager NavManager
+
+<h3>Search Users</h3>
+
+<input class="form-control search-input"
+	   placeholder="Search by username or email..."
+	   value="@searchTerm"
+	   @oninput="OnInputChanged" />
+
+@if (searchResults != null && searchResults.Any())
+{
+	<ul class="user-list">
+		@foreach (var user in searchResults)
+		{
+			<li class="user-item">
+				<img src="@user.ProfilePictureUrl" alt="Profile Picture" class="user-avatar" />
+				<a href="@($"/profile?email={Uri.EscapeDataString(user.Email)}")" class="user-link">
+					<span class="user-name">@user.DisplayName</span>
+					<span class="user-email">(@user.Email)</span>
+				</a>
+			</li>
+		}
+	</ul>
+}
+else
+{
+	<p class="text-muted mt-2">No users found.</p>
+}
+
+@code {
+	private string searchTerm = "";
+	private List<User> allUsers = new();
+	private List<User> searchResults = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		allUsers = await MessageService.GetAllUsersAsync();
+		searchResults = allUsers;
+	}
+
+	private void OnInputChanged(ChangeEventArgs e)
+	{
+		searchTerm = e.Value?.ToString() ?? "";
+
+		if (string.IsNullOrWhiteSpace(searchTerm))
+		{
+			searchResults = allUsers;
+		}
+		else
+		{
+			searchResults = allUsers
+				.Where(u => u.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+						 || u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+				.ToList();
+		}
+	}
+}

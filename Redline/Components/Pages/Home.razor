@@ -1,0 +1,29 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Home</PageTitle>
+
+<div class="home-hero">
+	<div class="home-logo">
+		<img src="redline-logo.png" alt="Redline Logo">
+	</div>
+
+	<p class="home-blurb">
+		Welcome to <span class="text-red-500 font-semibold">Redline</span> — a simple place to share messages with friends and fellow car enthusiasts. 🚗💨
+		Check out profiles, leave a note, and keep the conversation rolling. 🏎️🔥
+	</p>
+
+	<AuthorizeView>
+		<NotAuthorized>
+			<div class="home-links">
+				<a href="Account/Register" class="register">Register</a>
+				<a href="Account/Login" class="login">Login</a>
+			</div>
+		</NotAuthorized>
+		<Authorized>
+			<div class="home-links">
+				<a href="/profile" class="register">Go to Profile</a>
+			</div>
+		</Authorized>
+	</AuthorizeView>
+</div>

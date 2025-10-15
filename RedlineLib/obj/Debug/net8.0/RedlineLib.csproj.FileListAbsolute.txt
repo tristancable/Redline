@@ -1,0 +1,14 @@
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\bin\Debug\net8.0\RedlineLib.deps.json
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\bin\Debug\net8.0\RedlineLib.dll
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\bin\Debug\net8.0\RedlineLib.pdb
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\RedlineLib.GeneratedMSBuildEditorConfig.editorconfig
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\RedlineLib.AssemblyInfoInputs.cache
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\RedlineLib.AssemblyInfo.cs
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\RedlineLib.csproj.CoreCompileInputs.cache
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\RedlineLib.dll
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\refint\RedlineLib.dll
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\RedlineLib.pdb
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\ref\RedlineLib.dll
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\bin\Debug\net8.0\RedlineLib.runtimeconfig.json
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\RedlineLib.csproj.AssemblyReference.cache
+C:\Neumont\Quarter 8\CSC260 - Introduction to Dynamic Web Programming\Redline\RedlineLib\obj\Debug\net8.0\RedlineLib.genruntimeconfig.cache
